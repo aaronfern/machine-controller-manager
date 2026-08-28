@@ -6,6 +6,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
@@ -13,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"k8s.io/client-go/util/retry"
@@ -219,5 +221,20 @@ func (c *Cluster) CreateOrUpdateMcd(ctx context.Context, mcd v1alpha1.MachineDep
 		})
 		return retryErr
 	}
+	return err
+}
+
+// PatchMachineAnnotations patches the annotations of a machine with the specified name and namespace with the provided annotation map
+func (c *Cluster) PatchMachineAnnotations(ctx context.Context, mcName string, namespace string, annMap map[string]any) error {
+	patch := map[string]any{
+		"metadata": map[string]any{
+			"annotations": annMap,
+		},
+	}
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return err
+	}
+	_, err = c.McmClient.MachineV1alpha1().Machines(namespace).Patch(ctx, mcName, types.MergePatchType, patchBytes, metav1.PatchOptions{})
 	return err
 }
