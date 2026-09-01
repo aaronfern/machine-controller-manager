@@ -976,7 +976,7 @@ func (c *IntegrationTestFramework) ControllerTests() {
 	// Testcase #03 | Preservation of Machines
 	ginkgo.Describe("Machine Preservation", ginkgo.Ordered, func() {
 		ginkgo.AfterAll(func() {
-			ginkgo.By("Delete mcd after auto preservation tests")
+			ginkgo.By("Delete mcd after preservation tests")
 			gomega.Expect(
 				c.ControlCluster.McmClient.
 					MachineV1alpha1().
@@ -998,7 +998,7 @@ func (c *IntegrationTestFramework) ControllerTests() {
 		ginkgo.Context("Should auto-preserve a failed machine", func() {
 			ginkgo.It("When it fails and the machine should re-join the cluster if it recovers before the preservation timeout", func() {
 				ginkgo.By("Creating a MCD with preservation fields populated")
-				// mcd replicas for the auto preservation tests are intentionally set to 3. This is done so that we pay the cost of
+				// mcd replicas for the preservation tests are intentionally set to 3. This is done so that we pay the cost of
 				// creating new machines only once and subsequent tests can be run without waiting for new machines to be created.
 				mcd := helpers.NewMachineDeployment(controlClusterNamespace, gnaSecretNameLabelValue, 3)
 				//Update the standard mcd to have preservation fields with values needed for this test
@@ -1268,7 +1268,7 @@ func (c *IntegrationTestFramework) ControllerTests() {
 				// Create an mcd with replica=3, AutoPreserveFailedMachineMax=1, and with a very small machinePreserveTimeout
 				ginkgo.By("Create a MCD with preservation fields populated")
 				mcd := helpers.NewMachineDeployment(controlClusterNamespace, gnaSecretNameLabelValue, 3)
-				//Update the standard mcd to have preservation fields
+				// Update the standard mcd to have preservation fields
 				mcd.Spec.AutoPreserveFailedMachineMax = 1
 				mcd.Spec.Template.Spec.MachineConfiguration = &v1alpha1.MachineConfiguration{
 					MachineHealthTimeout:   &metav1.Duration{Duration: 5 * time.Second},
@@ -1307,7 +1307,7 @@ func (c *IntegrationTestFramework) ControllerTests() {
 					Should(gomega.BeTrue())
 
 				ginkgo.By("Ensure that machine stays preserved for MachinePreserveTimeout duration")
-				// Duration of check reduced by a small amount to account for any pollible flakes arrising due to delays in this running this check
+				// Duration of check reduced by a small amount to account for any possible flakes arising due to delays in running this check
 				gomega.Consistently(
 					c.ControlCluster.AreMachinesFailedAndPreserved,
 					mcd.Spec.Template.Spec.MachineConfiguration.MachinePreserveTimeout.Duration-(2*c.pollingInterval),
@@ -1587,7 +1587,7 @@ func (c *IntegrationTestFramework) ControllerTests() {
 		})
 	})
 
-	// Testcase #05 | Orphaned Resources
+	// Testcase #04 | Orphaned Resources
 	ginkgo.Describe("orphaned resources", func() {
 		ginkgo.Context("when the hyperscaler resources are queried", func() {
 			ginkgo.It("should have been deleted", func() {
